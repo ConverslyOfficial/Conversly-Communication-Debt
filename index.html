@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Conversly Communication Debt Calculator — Quantify what communication avoidance is actually costing you.">
+<title>Conversly · Communication Debt Calculator</title>
+<link rel="icon" type="image/png" href="https://image2url.com/r2/default/images/1774918418130-4e79b709-ee19-4d3c-bf03-1d3f1eafc6e6.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#020810;--bg2:#030c1a;--bg3:#040e20;
+  --surf:rgba(7,18,46,0.74);--surf2:rgba(255,255,255,0.026);--surf3:rgba(255,255,255,0.014);
+  --glass:rgba(12,28,72,0.62);
+  --border:rgba(255,255,255,0.072);--border2:rgba(255,255,255,0.038);--border3:rgba(255,255,255,0.018);
+  --blue:#3A82E8;--blue-hi:#5FA3FF;--blue-bright:#7DBCFF;--blue-dim:#1B468A;--blue-pale:#8FBDE8;
+  --blue-glow:rgba(58,130,232,0.2);--sel-bg:rgba(58,130,232,0.09);--sel-b:rgba(95,163,255,0.46);
+  --txt:#EAF1FB;--txt2:rgba(183,208,238,0.68);--txt3:rgba(120,158,205,0.46);--txt4:rgba(80,120,175,0.3);
+  --teal:#38C9A7;--gold:#F5C842;--amber:#E8903A;--red-debt:#E05C5C;
+  --or:16px;--cr:24px;--cr2:18px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{height:100%;background:var(--bg);scroll-behavior:smooth;}
+body{min-height:100%;background:var(--bg);color:var(--txt);font-family:'Manrope',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+button{font-family:'Manrope',sans-serif;}
+a{text-decoration:none;}
+
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(110px);animation:orbf ease-in-out infinite;}
+.o1{width:900px;height:900px;background:radial-gradient(circle,rgba(15,42,140,0.44) 0%,transparent 60%);top:-320px;left:-240px;animation-duration:32s;}
+.o2{width:700px;height:700px;background:radial-gradient(circle,rgba(8,50,180,0.28) 0%,transparent 60%);bottom:-220px;right:-200px;animation-duration:40s;animation-delay:-15s;}
+.o3{width:500px;height:500px;background:radial-gradient(circle,rgba(58,130,232,0.15) 0%,transparent 60%);top:36%;right:10%;animation-duration:26s;animation-delay:-9s;}
+.o4{width:380px;height:380px;background:radial-gradient(circle,rgba(232,144,58,0.05) 0%,transparent 60%);top:16%;left:26%;animation-duration:44s;animation-delay:-22s;}
+.o5{width:260px;height:260px;background:radial-gradient(circle,rgba(224,92,92,0.06) 0%,transparent 60%);bottom:30%;left:8%;animation-duration:35s;animation-delay:-6s;}
+@keyframes orbf{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(32px,-26px) scale(1.06);}66%{transform:translate(-24px,30px) scale(0.95);}}
+.bg-grid{position:fixed;inset:0;z-index:1;pointer-events:none;background-image:linear-gradient(rgba(58,130,232,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(58,130,232,0.018) 1px,transparent 1px);background-size:80px 80px;}
+.bg-noise{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0.025;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");}
+
+.app{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;}
+
+.hdr{padding:22px 40px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:20;}
+.logo{display:flex;align-items:center;text-decoration:none;cursor:pointer;}
+.logo-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--txt);letter-spacing:-0.01em;transition:opacity .18s;}
+.logo:hover .logo-name{opacity:.75;}
+.q-counter{font-size:11px;color:var(--txt3);letter-spacing:0.12em;font-weight:500;}
+
+.prog-wrap{padding:14px 40px 0;flex-shrink:0;position:relative;z-index:20;}
+.prog-track{height:2px;background:rgba(255,255,255,0.05);border-radius:99px;position:relative;overflow:visible;}
+.prog-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);position:relative;background:linear-gradient(90deg,#8A3A1E 0%,#CC5C2A 30%,#E8903A 60%,#F5C842 100%);box-shadow:0 0 12px rgba(232,144,58,0.6),0 0 28px rgba(245,200,66,0.22);}
+.prog-fill::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:7px;height:7px;background:#F5C842;border-radius:50%;box-shadow:0 0 8px rgba(245,200,66,0.9),0 0 16px rgba(232,144,58,0.8);}
+.prog-fill::before{content:'';position:absolute;inset:0;border-radius:99px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.35) 50%,transparent 100%);background-size:200px 100%;animation:shimmer 3s linear infinite;}
+@keyframes shimmer{0%{background-position:-200px 0;}100%{background-position:600px 0;}}
+.prog-milestones{display:flex;justify-content:space-between;padding:0 1px;margin-top:7px;}
+.prog-ms{font-size:9.5px;color:var(--txt4);letter-spacing:0.08em;transition:color .4s;}
+.prog-ms.passed{color:rgba(245,200,66,0.7);}
+
+.screens{flex:1;position:relative;z-index:10;padding:24px 16px 80px;display:flex;align-items:flex-start;justify-content:center;}
+.screens-spacer{display:block;width:100%;max-width:600px;visibility:hidden;pointer-events:none;}
+
+.card{width:100%;max-width:592px;background:var(--surf);backdrop-filter:blur(56px) saturate(1.4);-webkit-backdrop-filter:blur(56px) saturate(1.4);border:1px solid var(--border);border-radius:var(--cr);padding:46px 46px 40px;box-shadow:0 0 0 1px rgba(255,255,255,0.032),inset 0 1px 0 rgba(255,255,255,0.06),0 8px 32px rgba(0,0,0,0.4),0 32px 80px rgba(0,0,0,0.7),0 0 80px rgba(232,144,58,0.03);position:absolute;top:24px;left:50%;transform:translateX(-50%);transition:opacity .42s cubic-bezier(.4,0,.2,1),transform .42s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(232,144,58,0.5) 25%,rgba(245,200,66,0.4) 50%,rgba(232,144,58,0.5) 75%,transparent 100%);animation:topAcc 6s ease-in-out infinite;}
+@keyframes topAcc{0%,100%{opacity:0.7;}50%{opacity:1;}}
+.card.active{opacity:1;transform:translateX(-50%) scale(1);pointer-events:all;}
+.card.out-l{opacity:0;transform:translateX(calc(-50% - 56px)) scale(.964);pointer-events:none;}
+.card.out-r{opacity:0;transform:translateX(calc(-50% + 56px)) scale(.964);pointer-events:none;}
+.card.in-r{opacity:0;transform:translateX(calc(-50% + 56px)) scale(.964);pointer-events:none;}
+.card.in-l{opacity:0;transform:translateX(calc(-50% - 56px)) scale(.964);pointer-events:none;}
+
+.card-c{width:100%;max-width:608px;position:absolute;top:24px;left:50%;transform:translateX(-50%);transition:opacity .46s cubic-bezier(.4,0,.2,1),transform .46s cubic-bezier(.4,0,.2,1);}
+.card-c.active{opacity:1;transform:translateX(-50%) translateY(0) scale(1);pointer-events:all;}
+.card-c.gone{opacity:0;transform:translateX(-50%) translateY(24px) scale(.97);pointer-events:none;}
+
+.skel-overlay{position:absolute;inset:0;border-radius:inherit;background:var(--surf);padding:46px 46px 40px;z-index:30;pointer-events:none;animation:skelFadeOut 0.48s cubic-bezier(.4,0,.2,1) 0.22s forwards;backdrop-filter:blur(56px);-webkit-backdrop-filter:blur(56px);}
+@keyframes skelFadeOut{0%{opacity:1;}100%{opacity:0;visibility:hidden;}}
+.skel-line{border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.085) 40%,rgba(255,255,255,0.04) 80%);background-size:480px 100%;animation:skelShimmer 1.5s ease-in-out infinite;margin-bottom:10px;}
+@keyframes skelShimmer{0%{background-position:-480px 0;}100%{background-position:480px 0;}}
+.sk-tag{height:11px;width:118px;margin-bottom:18px;}
+.sk-h1{height:32px;width:88%;margin-bottom:8px;}
+.sk-h2{height:26px;width:64%;margin-bottom:18px;}
+.sk-sub1{height:13px;width:95%;margin-bottom:8px;}
+.sk-sub2{height:13px;width:72%;margin-bottom:24px;}
+.sk-opt{height:52px;border-radius:16px;margin-bottom:8px;}
+.sk-opt2{height:52px;border-radius:16px;margin-bottom:8px;opacity:.78;}
+.sk-opt3{height:52px;border-radius:16px;margin-bottom:8px;opacity:.56;}
+.sk-opt4{height:52px;border-radius:16px;opacity:.36;}
+
+.q-tag{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,200,66,0.8);margin-bottom:14px;}
+.q-dot{width:5px;height:5px;background:var(--gold);border-radius:50%;box-shadow:0 0 8px var(--gold),0 0 14px rgba(245,200,66,0.5);animation:pulse 2.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(1.8);}}
+.q-text{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:600;line-height:1.28;color:var(--txt);margin-bottom:8px;letter-spacing:-.02em;}
+.q-sub{font-size:13.5px;color:var(--txt2);margin-bottom:26px;line-height:1.65;font-weight:300;}
+.q-note{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:rgba(245,200,66,0.7);background:rgba(245,200,66,.04);border:1px solid rgba(245,200,66,.14);border-radius:99px;padding:5px 13px;margin-bottom:18px;}
+
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opt{background:var(--surf2);border:1px solid var(--border3);border-radius:var(--or);padding:14px 18px;cursor:pointer;transition:all .22s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:space-between;text-align:left;width:100%;color:var(--txt2);font-family:'Manrope',sans-serif;font-size:13.5px;font-weight:400;position:relative;overflow:hidden;}
+.opt-glow{position:absolute;inset:0;opacity:0;transition:opacity .22s;pointer-events:none;background:linear-gradient(135deg,rgba(232,144,58,0.06) 0%,transparent 60%);}
+.opt-accent{position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,transparent,var(--amber),transparent);opacity:0;transition:opacity .22s;}
+.opt:hover{background:rgba(255,255,255,0.042);border-color:rgba(232,144,58,.24);color:var(--txt);transform:translateY(-1px);box-shadow:0 4px 18px rgba(0,0,0,.32),0 0 24px rgba(232,144,58,.06);}
+.opt:hover .opt-glow{opacity:1;}
+.opt:hover .opt-accent{opacity:.5;}
+.opt.sel{background:rgba(232,144,58,0.06);border-color:rgba(245,200,66,0.36);color:var(--txt);box-shadow:0 0 0 1px rgba(232,144,58,.16),0 6px 24px rgba(232,144,58,.12);}
+.opt.sel .opt-glow{opacity:1;}
+.opt.sel .opt-accent{opacity:1;}
+.opt-lbl{flex:1;line-height:1.45;}
+.opt-radio{width:19px;height:19px;border-radius:50%;border:1.5px solid rgba(255,255,255,.14);flex-shrink:0;transition:all .22s;display:flex;align-items:center;justify-content:center;}
+.opt.sel .opt-radio{background:var(--amber);border-color:var(--gold);box-shadow:0 0 12px rgba(232,144,58,.6),0 0 24px rgba(232,144,58,.2);}
+.chk{width:8px;height:8px;opacity:0;transition:opacity .15s;}
+.opt.sel .chk{opacity:1;}
+
+.sl-wrap{padding:6px 0 16px;}
+.sl-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--txt3);margin-bottom:18px;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:rgba(255,255,255,.06);border-radius:99px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#F5C842,#E8903A);cursor:pointer;box-shadow:0 0 0 3px rgba(232,144,58,0.2),0 0 16px rgba(245,200,66,.65);border:2px solid rgba(255,255,255,.2);transition:transform .15s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#F5C842,#E8903A);cursor:pointer;box-shadow:0 0 16px rgba(232,144,58,.65);border:2px solid rgba(255,255,255,.2);}
+.sl-display{text-align:center;padding-top:16px;}
+.sl-num{font-family:'Cormorant Garamond',serif;font-size:62px;font-weight:700;background:linear-gradient(135deg,#F5C842 0%,#E8903A 50%,#F5C842 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.04em;line-height:1;}
+.sl-caption{font-size:13.5px;color:var(--txt2);margin-top:6px;font-weight:300;letter-spacing:.01em;}
+
+.txt-in{width:100%;background:rgba(255,255,255,.032);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;color:var(--txt);font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;outline:none;transition:all .24s;text-align:center;letter-spacing:-.01em;}
+.txt-in:focus{border-color:rgba(245,200,66,0.4);background:rgba(245,200,66,0.04);box-shadow:0 0 0 3px rgba(232,144,58,.1),inset 0 1px 0 rgba(255,255,255,.04);}
+.txt-in::placeholder{color:var(--txt3);font-style:italic;}
+
+.nav{display:flex;align-items:center;justify-content:space-between;margin-top:26px;padding-top:18px;border-top:1px solid var(--border3);}
+.btn-back{background:transparent;border:none;color:var(--txt3);cursor:pointer;font-size:13px;font-weight:400;display:flex;align-items:center;gap:5px;padding:8px 0;transition:color .18s;}
+.btn-back:hover{color:var(--txt2);}
+.btn-next{background:linear-gradient(135deg,#8A3A1E 0%,#CC5C2A 40%,#E8903A 80%,#F5C842 100%);border:none;border-radius:99px;padding:13px 32px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.02em;transition:all .22s;display:flex;align-items:center;gap:7px;box-shadow:0 4px 20px rgba(232,144,58,.36),inset 0 1px 0 rgba(255,255,255,.14);opacity:.3;pointer-events:none;}
+.btn-next.on{opacity:1;pointer-events:all;}
+.btn-next.on:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(232,144,58,.56),inset 0 1px 0 rgba(255,255,255,.18);}
+.btn-next.on:active{transform:translateY(0);}
+
+/* WELCOME */
+.wlc-eyebrow{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,200,66,0.7);margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.wlc-rule{flex:1;height:1px;background:linear-gradient(90deg,rgba(245,200,66,.3),transparent);}
+.wlc-title{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;line-height:1.14;color:var(--txt);margin-bottom:16px;letter-spacing:-.028em;}
+.wlc-title em{font-style:italic;background:linear-gradient(135deg,#F5C842 0%,#E8903A 50%,#F5C842 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.wlc-body{font-size:14.5px;line-height:1.72;color:var(--txt2);margin-bottom:22px;font-weight:300;}
+
+.debt-meter-wrap{background:rgba(255,255,255,.022);border:1px solid rgba(245,200,66,.1);border-radius:18px;padding:20px 22px;margin-bottom:20px;position:relative;overflow:hidden;}
+.debt-meter-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,200,66,.35),transparent);}
+.debt-meter-label{font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,200,66,.6);margin-bottom:8px;}
+.debt-meter-stat{display:flex;align-items:baseline;gap:8px;margin-bottom:12px;}
+.debt-meter-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:var(--txt);letter-spacing:-.03em;}
+.debt-meter-sub{font-size:12px;color:var(--txt3);}
+.debt-bar-track{height:4px;background:rgba(255,255,255,.04);border-radius:99px;overflow:hidden;}
+.debt-bar-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#8A3A1E,#E8903A,#F5C842);animation:debtBarLoad 2s cubic-bezier(.4,0,.2,1) 0.5s forwards;}
+@keyframes debtBarLoad{0%{width:0%;}100%{width:73%;}}
+.debt-meter-note{font-size:11px;color:var(--txt3);margin-top:8px;}
+
+.sp-row{display:flex;align-items:center;gap:10px;margin-bottom:20px;width:fit-content;}
+.sp-faces{display:flex;}
+.sp-face{width:26px;height:26px;border-radius:50%;border:2px solid var(--bg2);margin-right:-7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.f1{background:linear-gradient(135deg,#3A82E8,#5FA3FF);}
+.f2{background:linear-gradient(135deg,#5B45B0,#8B72D8);}
+.f3{background:linear-gradient(135deg,#0E9F7E,#38C9A7);}
+.f4{background:linear-gradient(135deg,#C45C2A,#E88150);}
+.sp-text{font-size:13px;color:var(--txt2);margin-left:10px;}
+.sp-text strong{color:var(--txt);font-weight:600;}
+
+.trust-row{display:flex;align-items:center;gap:18px;margin-top:12px;flex-wrap:wrap;}
+.trust-item{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--txt3);}
+.btn-start{background:linear-gradient(135deg,#8A3A1E 0%,#CC5C2A 35%,#E8903A 70%,#F5C842 100%);border:none;border-radius:99px;padding:18px 42px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:all .24s;box-shadow:0 6px 24px rgba(232,144,58,.44),0 0 0 1px rgba(245,200,66,.2),inset 0 1px 0 rgba(255,255,255,.18);width:100%;letter-spacing:.025em;}
+.btn-start:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(232,144,58,.6),0 0 0 1px rgba(245,200,66,.3);}
+.wlc-fine{font-size:11px;color:var(--txt4);text-align:center;margin-top:10px;}
+
+/* INSIGHT */
+.ins-glass{background:var(--surf);backdrop-filter:blur(56px) saturate(1.4);-webkit-backdrop-filter:blur(56px) saturate(1.4);border:1px solid var(--border);border-radius:var(--cr);padding:44px 44px 40px;box-shadow:0 0 0 1px rgba(255,255,255,.03),inset 0 1px 0 rgba(255,255,255,.06),0 32px 90px rgba(0,0,0,.72),0 0 64px rgba(232,144,58,.03);position:relative;overflow:hidden;}
+.ins-glass::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,200,66,.5) 30%,rgba(255,230,150,.35) 50%,rgba(245,200,66,.5) 70%,transparent);}
+.ins-tag{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,200,66,.8);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.ins-title{font-family:'Cormorant Garamond',serif;font-size:31px;font-weight:600;line-height:1.22;color:var(--txt);margin-bottom:12px;letter-spacing:-.022em;}
+.ins-body{font-size:14px;line-height:1.72;color:var(--txt2);margin-bottom:24px;font-weight:300;}
+.ins-body strong{color:var(--txt);font-weight:500;}
+.btn-cont{background:linear-gradient(135deg,#8A3A1E 0%,#CC5C2A 40%,#E8903A 80%,#F5C842 100%);border:none;border-radius:99px;padding:14px 38px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all .22s;letter-spacing:.02em;box-shadow:0 6px 24px rgba(232,144,58,.38),inset 0 1px 0 rgba(255,255,255,.15);}
+.btn-cont:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(232,144,58,.55);}
+
+.chart-wrap{margin-bottom:26px;}
+.chart-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:6px;}
+.chart-source{font-size:10px;color:var(--txt4);margin-bottom:16px;font-style:italic;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.bar-row-lbl{font-size:11.5px;color:var(--txt3);width:200px;flex-shrink:0;text-align:right;line-height:1.3;}
+.bar-row.hi .bar-row-lbl{color:rgba(245,200,66,.8);}
+.bar-track{flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden;}
+.bar-fill{height:100%;width:0;border-radius:99px;background:rgba(232,144,58,.28);transition:width 1.1s cubic-bezier(.4,0,.2,1);}
+.bar-row.hi .bar-fill{background:linear-gradient(90deg,#8A3A1E,#E8903A,#F5C842);box-shadow:0 0 10px rgba(245,200,66,.4);}
+.bar-pct{font-size:11.5px;color:var(--txt3);width:34px;flex-shrink:0;font-weight:600;}
+.bar-row.hi .bar-pct{color:rgba(245,200,66,.8);}
+.chart-note{font-size:11px;color:var(--txt3);margin-top:10px;font-style:italic;}
+
+/* MOMENTUM */
+.mom-wrap{background:var(--surf);backdrop-filter:blur(56px) saturate(1.4);-webkit-backdrop-filter:blur(56px) saturate(1.4);border:1px solid var(--border);border-radius:var(--cr);padding:42px 44px;box-shadow:0 0 0 1px rgba(255,255,255,.03),inset 0 1px 0 rgba(255,255,255,.06),0 32px 90px rgba(0,0,0,.72);position:relative;text-align:center;overflow:hidden;}
+.mom-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--amber) 25%,rgba(245,200,66,.4) 50%,var(--amber) 75%,transparent);}
+.mom-pct{font-family:'Cormorant Garamond',serif;font-size:74px;font-weight:700;background:linear-gradient(135deg,#F5C842 0%,#E8903A 50%,#F5C842 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-.04em;margin-bottom:4px;}
+.mom-pct-lbl{font-size:11px;color:var(--txt3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:22px;}
+.mom-rule{width:36px;height:1px;background:var(--border2);margin:0 auto 20px;}
+.mom-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;line-height:1.24;color:var(--txt);margin-bottom:11px;letter-spacing:-.02em;}
+.mom-body{font-size:13.5px;line-height:1.72;color:var(--txt2);margin-bottom:24px;font-weight:300;max-width:460px;margin-left:auto;margin-right:auto;}
+.recip-box{background:rgba(232,144,58,.06);border:1px solid rgba(232,144,58,.14);border-radius:16px;padding:16px 20px;margin-bottom:24px;text-align:left;}
+.recip-label{font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,200,66,.7);margin-bottom:7px;}
+.recip-text{font-size:13px;line-height:1.64;color:var(--txt2);font-weight:300;}
+.recip-text strong{color:var(--txt);font-weight:500;}
+.loss-box{background:rgba(224,92,92,.04);border:1px solid rgba(224,92,92,.14);border-radius:16px;padding:14px 18px;margin-bottom:20px;text-align:left;}
+.loss-label{font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(224,92,92,.8);margin-bottom:6px;}
+.loss-text{font-size:12.5px;color:rgba(224,160,160,.65);line-height:1.6;font-weight:300;}
+
+/* STAT CARDS */
+.stat-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:22px;}
+.stat-card{background:rgba(255,255,255,.022);border:1px solid var(--border2);border-radius:16px;padding:16px 14px;text-align:center;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;background:linear-gradient(135deg,#F5C842,#E8903A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-.02em;margin-bottom:6px;}
+.stat-lbl{font-size:11px;color:var(--txt3);line-height:1.4;font-weight:400;}
+.stat-src{font-size:9.5px;color:var(--txt4);margin-top:4px;font-style:italic;}
+
+/* BUILDING */
+.bld-wrap{background:var(--surf);backdrop-filter:blur(56px) saturate(1.4);-webkit-backdrop-filter:blur(56px) saturate(1.4);border:1px solid var(--border);border-radius:var(--cr);padding:54px 44px;box-shadow:0 32px 90px rgba(0,0,0,.72);position:relative;text-align:center;}
+.bld-ring-outer{width:82px;height:82px;margin:0 auto 28px;position:relative;}
+.bld-ring{width:82px;height:82px;border-radius:50%;border:1.5px solid rgba(232,144,58,.16);border-top-color:var(--gold);animation:spin 1.2s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.bld-ring-inner{position:absolute;inset:12px;border-radius:50%;border:1px solid rgba(232,144,58,.08);border-bottom-color:rgba(245,200,66,.32);animation:spin 2s linear infinite reverse;}
+.bld-tag{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,200,66,.7);margin-bottom:10px;}
+.bld-title{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;color:var(--txt);margin-bottom:10px;letter-spacing:-.02em;}
+.bld-sub{font-size:13.5px;color:var(--txt2);margin-bottom:28px;font-weight:300;line-height:1.64;}
+.bld-steps{text-align:left;max-width:310px;margin:0 auto;}
+.bld-step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--txt3);margin-bottom:12px;font-weight:400;}
+.bld-step.done{color:var(--txt2);}
+.bld-step.active{color:rgba(245,200,66,.8);}
+.step-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.08);flex-shrink:0;transition:background .4s;}
+.bld-step.done .step-dot{background:var(--teal);box-shadow:0 0 8px rgba(56,201,167,.5);}
+.bld-step.active .step-dot{background:var(--gold);box-shadow:0 0 10px rgba(245,200,66,.8);animation:pulse 1.1s ease-in-out infinite;}
+
+/* RESULTS */
+.res-glass{background:var(--surf);backdrop-filter:blur(56px) saturate(1.4);-webkit-backdrop-filter:blur(56px) saturate(1.4);border:1px solid var(--border);border-radius:var(--cr);padding:38px 40px;box-shadow:0 0 0 1px rgba(255,255,255,.03),inset 0 1px 0 rgba(255,255,255,.06),0 32px 80px rgba(0,0,0,.7);position:relative;overflow:hidden;}
+.res-glass::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,200,66,.5) 25%,rgba(255,230,150,.3) 50%,rgba(245,200,66,.5) 75%,transparent);}
+.res-eyebrow{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,200,66,.8);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.res-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;line-height:1.18;color:var(--txt);margin-bottom:8px;letter-spacing:-.026em;}
+
+.debt-ticker-wrap{background:rgba(224,92,92,.04);border:1px solid rgba(224,92,92,.18);border-radius:20px;padding:24px 28px;margin-bottom:20px;position:relative;overflow:hidden;}
+.debt-ticker-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(224,92,92,.4),transparent);}
+.debt-ticker-label{font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(224,120,120,.7);margin-bottom:8px;}
+.debt-ticker-amount{font-family:'Cormorant Garamond',serif;font-size:58px;font-weight:700;color:#E05C5C;letter-spacing:-.04em;line-height:1;}
+.debt-ticker-sub{font-size:12px;color:rgba(224,160,160,.55);margin-top:6px;}
+.debt-ticker-monthly{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(224,92,92,.1);}
+.dtm-icon{width:8px;height:8px;border-radius:50%;background:rgba(224,92,92,.6);animation:pulse 1.5s ease-in-out infinite;flex-shrink:0;}
+.dtm-text{font-size:12px;color:rgba(224,160,160,.6);}
+.dtm-text strong{color:rgba(224,120,120,.85);font-weight:600;}
+
+.debt-breakdown{margin-bottom:20px;}
+.db-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:14px;}
+.db-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.db-label{font-size:12px;color:var(--txt2);width:130px;flex-shrink:0;}
+.db-track{flex:1;height:6px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden;}
+.db-fill{height:100%;width:0;border-radius:99px;transition:width 1.4s cubic-bezier(.4,0,.2,1);}
+.db-fill.career{background:linear-gradient(90deg,#8A3A1E,#E8903A,#F5C842);box-shadow:0 0 8px rgba(245,200,66,.3);}
+.db-fill.relationship{background:linear-gradient(90deg,#5B45B0,#8B72D8);box-shadow:0 0 8px rgba(139,114,216,.3);}
+.db-fill.health{background:linear-gradient(90deg,#E05C5C,#E88080);box-shadow:0 0 8px rgba(224,92,92,.3);}
+.db-amount{font-size:12px;color:var(--txt2);width:70px;text-align:right;font-weight:500;flex-shrink:0;}
+
+.res-keys{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+.rkey{background:rgba(255,255,255,.022);border:1px solid var(--border2);border-radius:14px;padding:14px;}
+.rkey-label{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:5px;}
+.rkey-val{font-size:14px;color:var(--txt);font-weight:500;line-height:1.35;}
+.rkey-val.amber{color:rgba(245,200,66,.85);}
+.rkey-val.red{color:var(--red-debt);}
+
+.insight-callout{background:rgba(56,201,167,.04);border:1px solid rgba(56,201,167,.16);border-radius:16px;padding:16px 20px;margin:14px 0;}
+.ic-label{font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(56,201,167,.8);margin-bottom:6px;}
+.ic-text{font-size:13px;line-height:1.68;color:var(--txt2);font-weight:300;}
+.ic-text strong{color:var(--txt);font-weight:500;}
+
+/* PRICING */
+.pricing-section{background:var(--surf);backdrop-filter:blur(56px);-webkit-backdrop-filter:blur(56px);border:1px solid var(--border);border-radius:var(--cr);padding:36px 38px;position:relative;overflow:hidden;margin-top:14px;}
+.pricing-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,200,66,.5) 25%,rgba(255,230,150,.3) 50%,rgba(245,200,66,.5) 75%,transparent);}
+.pricing-eyebrow{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,200,66,.8);margin-bottom:6px;display:flex;align-items:center;gap:7px;}
+.pricing-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--txt);letter-spacing:-.02em;margin-bottom:6px;}
+.pricing-sub{font-size:13px;color:var(--txt2);font-weight:300;margin-bottom:24px;}
+.plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.plan-card{background:rgba(255,255,255,.024);border:1px solid var(--border2);border-radius:20px;padding:26px 24px;cursor:pointer;position:relative;transition:all .28s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.plan-card::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(232,144,58,.06) 0%,transparent 60%);opacity:0;transition:opacity .28s;}
+.plan-card:hover{border-color:rgba(245,200,66,.3);transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 32px rgba(232,144,58,.08);}
+.plan-card:hover::before{opacity:1;}
+.plan-card.pro-plan{border-color:rgba(245,200,66,.28);background:linear-gradient(135deg,rgba(140,60,30,.08) 0%,rgba(7,18,46,.74) 100%);}
+.plan-card.pro-plan::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,200,66,.7),transparent);}
+.plan-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(232,144,58,.2),rgba(245,200,66,.12));border:1px solid rgba(245,200,66,.3);border-radius:99px;padding:3px 10px;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,200,66,.9);margin-bottom:12px;}
+.plan-name{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--txt);letter-spacing:-.02em;margin-bottom:2px;}
+.plan-tagline{font-size:12px;color:var(--txt3);margin-bottom:14px;}
+.plan-price{display:flex;align-items:baseline;gap:3px;margin-bottom:18px;}
+.price-amount{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:700;color:var(--txt);letter-spacing:-.03em;}
+.price-period{font-size:12px;color:var(--txt3);}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:20px;}
+.plan-features li{font-size:12px;color:var(--txt2);line-height:1.45;display:flex;align-items:flex-start;gap:7px;font-weight:300;}
+.plan-features li::before{content:'';width:5px;height:5px;border-radius:50%;background:rgba(245,200,66,.6);flex-shrink:0;margin-top:5px;}
+.plan-btn{width:100%;border:none;border-radius:99px;padding:13px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Manrope',sans-serif;letter-spacing:.02em;transition:all .22s;}
+.starter-btn{background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--txt);}
+.starter-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(245,200,66,.3);}
+.pro-btn{background:linear-gradient(135deg,#8A3A1E,#CC5C2A,#E8903A,#F5C842);color:#fff;box-shadow:0 4px 20px rgba(232,144,58,.4),inset 0 1px 0 rgba(255,255,255,.16);}
+.pro-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(232,144,58,.56);}
+
+/* MODAL */
+.plan-modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(2,8,16,0.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .32s cubic-bezier(.4,0,.2,1);}
+.plan-modal-overlay.active{opacity:1;pointer-events:all;}
+.plan-modal-card{background:var(--surf);backdrop-filter:blur(64px);-webkit-backdrop-filter:blur(64px);border:1px solid var(--border);border-radius:28px;padding:40px 36px;max-width:420px;width:100%;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.04),inset 0 1px 0 rgba(255,255,255,.07),0 40px 100px rgba(0,0,0,.85),0 0 80px rgba(232,144,58,.06);transform:scale(.94) translateY(10px);transition:transform .32s cubic-bezier(.34,1.56,.64,1);}
+.plan-modal-overlay.active .plan-modal-card{transform:scale(1) translateY(0);}
+.plan-modal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;border-radius:28px 28px 0 0;background:linear-gradient(90deg,transparent,rgba(245,200,66,.6) 30%,rgba(255,230,150,.4) 50%,rgba(245,200,66,.6) 70%,transparent);}
+.modal-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.06);border:1px solid var(--border2);border-radius:50%;width:30px;height:30px;color:var(--txt3);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .18s;}
+.modal-close:hover{background:rgba(255,255,255,.1);color:var(--txt);}
+.modal-icon{font-size:36px;text-align:center;margin-bottom:16px;}
+.modal-head h3{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--txt);text-align:center;letter-spacing:-.02em;margin-bottom:4px;}
+.modal-price{text-align:center;font-size:14px;color:rgba(245,200,66,.8);margin-bottom:12px;font-weight:500;}
+.modal-desc{font-size:13.5px;color:var(--txt2);text-align:center;line-height:1.62;font-weight:300;margin-bottom:24px;}
+.modal-stores{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.modal-store-btn{display:flex;align-items:center;gap:14px;border-radius:16px;padding:16px 22px;cursor:pointer;transition:all .22s;}
+.modal-store-btn.apple{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--txt);}
+.modal-store-btn.apple:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);transform:translateY(-1px);}
+.modal-store-btn.google{background:rgba(232,144,58,.07);border:1px solid rgba(245,200,66,.18);color:var(--txt);}
+.modal-store-btn.google:hover{background:rgba(232,144,58,.12);border-color:rgba(245,200,66,.3);transform:translateY(-1px);}
+.modal-store-icon{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.modal-store-text .ms-sub{font-size:10px;color:var(--txt3);font-weight:400;margin-bottom:2px;}
+.modal-store-text .ms-name{font-size:15px;font-weight:600;color:var(--txt);}
+.modal-fine{font-size:11px;color:var(--txt4);text-align:center;}
+
+/* DOWNLOAD CTA */
+.dl-panel{background:var(--surf);backdrop-filter:blur(56px);-webkit-backdrop-filter:blur(56px);border:1px solid var(--border);border-radius:var(--cr);padding:32px 36px;box-shadow:0 24px 60px rgba(0,0,0,.55);position:relative;overflow:hidden;margin-top:14px;}
+.dl-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,200,66,.4),transparent);}
+.dl-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:20px;flex-wrap:wrap;}
+.dl-text h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--txt);margin-bottom:6px;letter-spacing:-.015em;}
+.dl-text p{font-size:13px;color:var(--txt2);line-height:1.62;font-weight:300;max-width:300px;}
+.dl-urgency{background:rgba(224,92,92,.07);border:1px solid rgba(224,92,92,.16);border-radius:14px;padding:12px 16px;flex-shrink:0;}
+.dl-urgency-lbl{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(224,120,120,.7);margin-bottom:4px;}
+.dl-urgency-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--red-debt);letter-spacing:-.02em;}
+.store-row{display:flex;gap:12px;flex-wrap:wrap;}
+.store-btn{display:flex;align-items:center;gap:12px;border-radius:16px;padding:14px 22px;transition:all .24s;min-width:176px;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+.store-btn.apple-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--txt);}
+.store-btn.apple-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.5);}
+.store-btn.play-btn{background:rgba(232,144,58,.07);border:1px solid rgba(245,200,66,.2);color:var(--txt);}
+.store-btn.play-btn:hover{background:rgba(232,144,58,.12);border-color:rgba(245,200,66,.35);transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.5),0 0 24px rgba(232,144,58,.12);}
+.s-icon{flex-shrink:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;}
+.s-sub{font-size:10px;color:var(--txt3);font-weight:400;margin-bottom:2px;}
+.s-name{font-size:14px;font-weight:600;}
+.dl-fine{font-size:11px;color:var(--txt4);margin-top:14px;}
+
+footer{position:relative;z-index:10;padding:24px 40px 30px;text-align:center;border-top:1px solid var(--border3);}
+.footer-links{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
+.footer-link{font-size:11.5px;color:var(--txt4);transition:color .18s;font-weight:400;}
+.footer-link:hover{color:rgba(245,200,66,.7);}
+.footer-sep{width:3px;height:3px;border-radius:50%;background:var(--txt4);}
+.footer-copy{font-size:10.5px;color:var(--txt4);margin-top:8px;}
+
+.confetti-field{position:fixed;inset:0;pointer-events:none;z-index:99;overflow:hidden;}
+.cp{position:absolute;border-radius:50%;animation:cfall linear forwards;opacity:0;}
+@keyframes cfall{0%{opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
+@media(min-width:860px){
+  .hdr{padding:28px 60px 0;}.prog-wrap{padding:18px 60px 0;}.screens{padding:36px 32px 100px;}
+  .card{max-width:620px;padding:52px 56px 48px;}.card-c{max-width:636px;}
+  .wlc-title{font-size:48px;}.q-text{font-size:30px;}.ins-title{font-size:33px;}.res-title{font-size:32px;}
+  .ins-glass{padding:50px 56px 46px;}.mom-wrap{padding:48px 56px 46px;}.bld-wrap{padding:60px 56px 54px;}
+  .res-glass{padding:44px 48px;}.pricing-section{padding:40px 44px;}.dl-panel{padding:36px 44px;}
+  .opts{gap:9px;}.opt{padding:15px 20px;font-size:14px;}
+  .store-row{flex-wrap:nowrap;}.store-btn{min-width:190px;}
+  .debt-ticker-amount{font-size:68px;}
+}
+@media(max-width:680px){
+  .hdr{padding:14px 18px 0;}.prog-wrap{padding:10px 18px 0;}.q-counter{display:none;}
+  .card{padding:26px 20px 22px;}.q-text{font-size:22px;}.wlc-title{font-size:30px;}
+  .res-keys{grid-template-columns:1fr;}.plans-grid{grid-template-columns:1fr;}
+  .dl-top{flex-direction:column;}.store-row{flex-direction:column;}
+  .bar-row-lbl{width:130px;font-size:10.5px;}.stat-cards{grid-template-columns:1fr;}
+  .ins-glass,.mom-wrap{padding:26px 22px 22px;}.pricing-section{padding:26px 20px;}
+  footer{padding:20px 24px;}.skel-overlay{padding:26px 20px 22px;}
+  .debt-ticker-amount{font-size:42px;}
+}
+@media(max-width:480px){
+  .card{padding:20px 15px 18px;}.q-text{font-size:20px;}.opts{gap:6px;}
+  .opt{padding:12px 14px;font-size:12.5px;}.bar-row-lbl{width:100px;font-size:10px;}
+  .skel-overlay{padding:20px 15px 18px;}
+}
+</style>
+</head>
+<body>
+<div class="bg-layer">
+  <div class="orb o1"></div><div class="orb o2"></div>
+  <div class="orb o3"></div><div class="orb o4"></div><div class="orb o5"></div>
+</div>
+<div class="bg-grid"></div>
+<div class="bg-noise"></div>
+<div class="confetti-field" id="confetti"></div>
+
+<div class="plan-modal-overlay" id="planModal" onclick="closePlanModal(event)">
+  <div class="plan-modal-card">
+    <button class="modal-close" onclick="closePlanModal()">✕</button>
+    <div class="modal-icon" id="modalIcon">🚀</div>
+    <div class="modal-head"><h3>Start <span id="modalPlanName">Pro</span></h3></div>
+    <div class="modal-price" id="modalPlanPrice">$17.99 / month</div>
+    <p class="modal-desc">Download Conversly to begin clearing your communication debt — one conversation at a time.</p>
+    <div class="modal-stores">
+      <a class="modal-store-btn apple" href="https://apps.apple.com/app/conversly-communication-gym/id6753739129" target="_blank" rel="noopener">
+        <div class="modal-store-icon"><svg width="28" height="34" viewBox="0 0 28 34" fill="none"><path d="M23.198 18.084c-.036-4.074 3.336-6.042 3.49-6.137-1.904-2.78-4.862-3.164-5.91-3.205-2.5-.255-4.888 1.476-6.157 1.476-1.27 0-3.218-1.443-5.294-1.403-2.716.043-5.23 1.588-6.624 4.005-2.822 4.888-.73 12.12 2.03 16.09 1.34 1.94 2.93 4.118 5.026 4.042 2.024-.082 2.786-1.3 5.237-1.3 2.45 0 3.138 1.3 5.28 1.26 2.18-.042 3.554-1.98 4.874-3.927 1.544-2.245 2.18-4.422 2.213-4.534-.047-.022-4.24-1.63-4.277-6.367zM18.996 5.74c1.11-1.36 1.864-3.238 1.66-5.116-1.604.065-3.548 1.072-4.697 2.428-1.03 1.192-1.934 3.104-1.692 4.94 1.79.14 3.617-.912 4.73-2.252z" fill="white"/></svg></div>
+        <div class="modal-store-text"><div class="ms-sub">Download on the</div><div class="ms-name">App Store</div></div>
+      </a>
+      <a class="modal-store-btn google" href="https://play.google.com/store/apps/details?id=com.conversly.app" target="_blank" rel="noopener">
+        <div class="modal-store-icon"><svg width="28" height="31" viewBox="0 0 28 31" fill="none"><path d="M.5.75C.19 1.09 0 1.62 0 2.31v26.38c0 .69.19 1.22.5 1.56l.08.08L15.12 15.5v-.37L.58.67.5.75z" fill="url(#gp1m)"/><path d="M20.08 20.44l-4.96-4.94v-.37l4.96-4.94.11.06 5.88 3.35c1.68.96 1.68 2.52 0 3.48l-5.88 3.35-.11.07z" fill="url(#gp2m)"/><path d="M20.19 20.38L15.12 15.3.5 30.25c.55.59 1.47.66 2.51.07l17.18-9.94z" fill="url(#gp3m)"/><path d="M20.19 10.62L3.01.68C1.97.09 1.05.16.5.75L15.12 15.7l5.07-5.08z" fill="url(#gp4m)"/><defs><linearGradient id="gp1m" x1="13.85" y1="1.89" x2="-6.56" y2="15.55" gradientUnits="userSpaceOnUse"><stop stop-color="#00A0FF"/><stop offset="1" stop-color="#00E3FF"/></linearGradient><linearGradient id="gp2m" x1="27.01" y1="15.3" x2="-.55" y2="15.3" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE000"/><stop offset="1" stop-color="#FF9C00"/></linearGradient><linearGradient id="gp3m" x1="17.51" y1="18.01" x2="-8.65" y2="49.34" gradientUnits="userSpaceOnUse"><stop stop-color="#FF3A44"/><stop offset="1" stop-color="#C31162"/></linearGradient><linearGradient id="gp4m" x1="-2.74" y1="-11.43" x2="9.14" y2="5.97" gradientUnits="userSpaceOnUse"><stop stop-color="#32A071"/><stop offset="1" stop-color="#00F076"/></linearGradient></defs></svg></div>
+        <div class="modal-store-text"><div class="ms-sub">Get it on</div><div class="ms-name">Google Play</div></div>
+      </a>
+    </div>
+    <p class="modal-fine">Free to start · No credit card required · Debt profile syncs on launch</p>
+  </div>
+</div>
+
+<div class="app">
+  <div class="hdr">
+    <a class="logo" href="#" onclick="location.reload();return false;" title="Restart calculator">
+      <span class="logo-name">Conversly · Communication Debt Calculator</span>
+    </a>
+    <span class="q-counter" id="qCounter"></span>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:3%"></div></div>
+    <div class="prog-milestones" id="progMs">
+      <span class="prog-ms" data-at="25">Income</span>
+      <span class="prog-ms" data-at="50">Patterns</span>
+      <span class="prog-ms" data-at="75">Impact</span>
+      <span class="prog-ms" data-at="100">Debt</span>
+    </div>
+  </div>
+  <div class="screens" id="screens">
+    <div class="screens-spacer" id="screensSpacer" aria-hidden="true"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a class="footer-link" href="https://conversly.io/" target="_blank" rel="noopener">conversly.io</a>
+    <span class="footer-sep"></span>
+    <a class="footer-link" href="https://links.conversly.io/" target="_blank" rel="noopener">links.conversly.io</a>
+    <span class="footer-sep"></span>
+    <a class="footer-link" href="https://apps.apple.com/app/conversly-communication-gym/id6753739129" target="_blank" rel="noopener">App Store</a>
+    <span class="footer-sep"></span>
+    <a class="footer-link" href="https://play.google.com/store/apps/details?id=com.conversly.app" target="_blank" rel="noopener">Google Play</a>
+  </div>
+  <div class="footer-copy">© 2025 Conversly · All rights reserved</div>
+</footer>
+
+<script>
+const S = { screen: 0, answers: {} };
+const _CAPS = {};
+
+const SCREENS = [
+/* 0 — WELCOME */
+{ id:'welcome', type:'welcome' },
+
+/* Q1 — Income */
+{ id:'q1', type:'q', qNum:1, total:12, tag:'Your Income',
+  text:'What is your current annual income?',
+  sub:'This is the foundation of your debt calculation — every dollar figure is calibrated to your actual earning power.',
+  note:'Used only for your calculation · never stored',
+  opts:[
+    {lbl:'Under $50,000', val:'under_50k'},
+    {lbl:'$50,000 – $75,000', val:'50_75k'},
+    {lbl:'$75,000 – $100,000', val:'75_100k'},
+    {lbl:'$100,000 – $150,000', val:'100_150k'},
+    {lbl:'Over $150,000', val:'150_plus'}
+  ]},
+
+/* Q2 — Frequency */
+{ id:'q2', type:'q', qNum:2, total:12, tag:'Avoidance Frequency',
+  text:'How many important conversations do you avoid or delay per month?',
+  sub:'Include any conversation you postpone, water down, or never have at all — at work or at home.',
+  opts:[
+    {lbl:'1–2 — I avoid occasionally', val:'1_2'},
+    {lbl:'3–5 — Several per month', val:'3_5'},
+    {lbl:'6–10 — Weekly pattern', val:'6_10'},
+    {lbl:'More than 10 — Almost constant', val:'11_plus'}
+  ]},
+
+/* Q3 — Type */
+{ id:'q3', type:'q', qNum:3, total:12, tag:'Primary Avoidance',
+  text:'Which type of conversation do you avoid most consistently?',
+  sub:'The category of avoidance determines where your debt is accumulating fastest.',
+  opts:[
+    {lbl:'Salary negotiations, raises, or compensation discussions', val:'salary'},
+    {lbl:'Performance feedback — giving it or asking for it honestly', val:'feedback'},
+    {lbl:'Conflict or disagreement with colleagues, managers, or partners', val:'conflict'},
+    {lbl:'Setting limits or saying no to unreasonable demands', val:'limits'},
+    {lbl:'Pitching ideas, asking for opportunities, or self-advocacy', val:'advocacy'},
+    {lbl:'All of the above — I avoid across the board', val:'all'}
+  ]},
+
+/* Q4 — Duration */
+{ id:'q4', type:'q', qNum:4, total:12, tag:'Debt Duration',
+  text:'How long have you been consistently avoiding high-stakes conversations?',
+  sub:'Duration is the compounding multiplier. The longer the pattern, the deeper the debt.',
+  opts:[
+    {lbl:'A few weeks — this is relatively new', val:'weeks'},
+    {lbl:'Several months', val:'few_months'},
+    {lbl:'About a year', val:'about_a_year'},
+    {lbl:'Multiple years — this is a long-standing pattern', val:'multiple_years'}
+  ]},
+
+/* Q5 — Negotiation */
+{ id:'q5', type:'q', qNum:5, total:12, tag:'Negotiation Reality',
+  text:'When you negotiate — for salary, contracts, or resources — how often do you leave money on the table?',
+  sub:"This is one of the most direct financial consequences of communication debt. Be honest — your number depends on it.",
+  note:'The average professional undersells by 12–22%',
+  opts:[
+    {lbl:'Always — I accept the first offer, almost without exception', val:'always'},
+    {lbl:'Often — I push back weakly and settle for less than I deserve', val:'often'},
+    {lbl:'Sometimes — I hold my ground but not consistently', val:'sometimes'},
+    {lbl:'Rarely — I negotiate effectively most of the time', val:'rarely'}
+  ]},
+
+/* INSIGHT */
+{ id:'insight1', type:'insight', iPct:42 },
+
+/* Q6 — Career consequence */
+{ id:'q6', type:'q', qNum:6, total:12, tag:'Career Cost',
+  text:'Which of these has communication avoidance directly cost you?',
+  sub:'Name it. Identifying the specific loss is the first step to quantifying it.',
+  opts:[
+    {lbl:'A promotion or leadership role that went to someone else', val:'missed_promo'},
+    {lbl:'A deal, client, or business opportunity lost', val:'lost_deal'},
+    {lbl:'My ideas being ignored while others get credit for similar ones', val:'ideas_ignored'},
+    {lbl:"My team or direct reports don't fully respect or follow my lead", val:'leadership_gap'},
+    {lbl:'None of the above yet — I am investing in staying ahead', val:'none_yet'}
+  ]},
+
+/* Q7 — Relationships */
+{ id:'q7', type:'q', qNum:7, total:12, tag:'Relationship Debt',
+  text:'How many relationships — professional or personal — have been damaged or lost due to avoided conversations?',
+  sub:'Unspoken resentment and unresolved conflict accumulate. Relationships are the silent casualty of communication debt.',
+  opts:[
+    {lbl:'None that I am aware of', val:'none'},
+    {lbl:'One or two — I can name them', val:'one_two'},
+    {lbl:'Three to five', val:'three_five'},
+    {lbl:'More than five — it is a recurring pattern', val:'more_than_five'}
+  ]},
+
+/* Q8 — Health */
+{ id:'q8', type:'q', qNum:8, total:12, tag:'Health & Energy Cost',
+  text:'How significantly does communication anxiety drain your daily productivity and mental energy?',
+  sub:'Anticipatory dread before avoided conversations, rumination after — these are measurable hours of cognitive drain.',
+  opts:[
+    {lbl:'Minimally — I recover quickly and it rarely lingers', val:'no_impact'},
+    {lbl:'Mildly — it costs me an hour or two across the week', val:'mild'},
+    {lbl:'Moderately — I lose meaningful focus time on a regular basis', val:'moderate'},
+    {lbl:'Significantly — it affects my sleep, focus, and energy daily', val:'significant'}
+  ]},
+
+/* Q9 — Workplace voice */
+{ id:'q9', type:'q', qNum:9, total:12, tag:'Voice at Work',
+  text:"At work, how often do your ideas get implemented versus overlooked?",
+  sub:"The gap between what you think and what gets heard is a direct measure of communication debt in action.",
+  opts:[
+    {lbl:'Rarely — my ideas are often dismissed or ignored', val:'rarely'},
+    {lbl:'Sometimes — inconsistent, depends heavily on the audience', val:'sometimes'},
+    {lbl:'Often — I get through most of the time with the right people', val:'often'},
+    {lbl:'Consistently — my voice carries well across most rooms', val:'consistently'}
+  ]},
+
+/* Q10 — Raises SLIDER */
+{ id:'q10', type:'slider', qNum:10, total:12, tag:'Lifetime Negotiation Gap', key:'raises_missed',
+  text:'How many times in your career have you NOT asked for a raise or negotiation you deserved?',
+  sub:'Each one represents a compounding gap — the raise you did not get shapes every salary after it.',
+  min:0, max:12, defaultVal:3,
+  captions:{0:'None — I always ask',1:'Once',2:'Twice',3:'Three times',4:'Four times',5:'Five times',6:'Six times',7:'Seven times',8:'Eight times',9:'Nine times',10:'Ten times',11:'Eleven times',12:'Twelve or more'}
+},
+
+/* MOMENTUM */
+{ id:'mom1', type:'momentum', pct:82,
+  title:"Your debt profile is almost fully mapped.",
+  body:"The data you've shared is painting a clear financial picture. Two final questions remain — they complete the human cost dimension of your communication debt.",
+  recipLabel:'What the research says',
+  recipText:"<strong>The average professional</strong> loses $22,000–$54,000 in lifetime earnings per decade of communication avoidance — before accounting for relationship and health costs. Your number is being calculated now.",
+  lossText:"Communication debt is not static. It compounds. Every month without deliberate practice, the gap between where you are and where you could be grows — in salary, in relationships, in opportunity.",
+},
+
+/* Q11 — Fear */
+{ id:'q11', type:'q', qNum:11, total:12, tag:'Your Barrier',
+  text:"What is your biggest fear about addressing your communication debt directly?",
+  sub:'Naming the fear is how you stop it from running the show.',
+  opts:[
+    {lbl:'Being judged or seen as inadequate during the process of improving', val:'judgment'},
+    {lbl:'Trying again and getting the same disappointing results as before', val:'failure'},
+    {lbl:"That it is too late — the habits are too deeply ingrained to change", val:'too_late'},
+    {lbl:'The discomfort of actually having the conversations I have been avoiding', val:'discomfort'},
+    {lbl:"I don't have a significant fear — I'm ready to start", val:'ready'}
+  ]},
+
+/* Q12 — Word */
+{ id:'q12', type:'word', qNum:12, total:12, tag:'Your Debt-Free Vision', key:'north_star',
+  text:'One word. What would it feel like to be completely communication-debt free?',
+  sub:'This is the identity you are reclaiming. It anchors everything that comes next.',
+  placeholder:'e.g. Free, Powerful, Heard, Unburdened…'
+},
+
+/* BUILDING */
+{ id:'building', type:'building' },
+
+/* RESULTS */
+{ id:'results', type:'results' }
+];
+
+/* ═══ HELPERS */
+function pct(idx){
+  const s=SCREENS[idx];
+  if(s.type==='welcome')return 3;
+  if(s.type==='results')return 100;
+  if(s.type==='building')return 97;
+  if(s.type==='momentum')return s.pct;
+  if(s.type==='insight')return s.iPct||42;
+  if(s.qNum)return Math.round(s.qNum/12*100);
+  return 0;
+}
+function qLabel(idx){const s=SCREENS[idx];return s.qNum?`Question ${s.qNum} of 12`:''}
+function svgCheck(){return`<svg class="chk" viewBox="0 0 8 8" fill="none"><path d="M1 4l2.3 2.3L7 1.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+function svgR(){return`<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+function svgL(){return`<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 7H3M6 10L3 7l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+function svgLock(){return`<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="5.5" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 5.5V4a2.5 2.5 0 015 0v1.5" stroke="currentColor" stroke-width="1.2"/></svg>`}
+function svgClock(){return`<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 4v2.5l1.8 1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`}
+function fmtMoney(n){return'$'+Math.round(n).toLocaleString();}
+
+/* ═══ SKELETON */
+function skelInner(type){
+  if(type==='welcome')return`<div class="skel-line" style="height:10px;width:160px;margin-bottom:20px;"></div><div class="skel-line" style="height:38px;width:88%;margin-bottom:8px;"></div><div class="skel-line" style="height:34px;width:72%;margin-bottom:8px;"></div><div class="skel-line" style="height:34px;width:60%;margin-bottom:22px;"></div><div class="skel-line" style="height:100px;border-radius:18px;margin-bottom:18px;"></div><div class="skel-line" style="height:52px;border-radius:99px;width:100%;"></div>`;
+  if(type==='slider')return`<div class="skel-line sk-tag"></div><div class="skel-line sk-h1"></div><div class="skel-line sk-h2"></div><div class="skel-line sk-sub1"></div><div class="skel-line sk-sub2"></div><div class="skel-line" style="height:3px;width:100%;margin:22px 0 24px;border-radius:99px;"></div><div class="skel-line" style="height:56px;width:80px;border-radius:12px;margin:0 auto;"></div>`;
+  if(type==='word')return`<div class="skel-line sk-tag"></div><div class="skel-line sk-h1"></div><div class="skel-line sk-h2"></div><div class="skel-line sk-sub1"></div><div class="skel-line sk-sub2"></div><div class="skel-line" style="height:66px;border-radius:16px;width:100%;margin-top:8px;"></div>`;
+  if(type==='insight')return`<div class="skel-line sk-tag"></div><div class="skel-line sk-h1"></div><div class="skel-line sk-h2"></div><div class="skel-line sk-sub1"></div><div class="skel-line sk-sub2"></div><div style="margin-top:20px">${[68,61,57,49,44].map(w=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div class="skel-line" style="height:12px;width:180px;flex-shrink:0;margin:0;"></div><div class="skel-line" style="height:5px;flex:1;margin:0;border-radius:99px;"></div></div>`).join('')}</div>`;
+  if(type==='momentum')return`<div style="text-align:center"><div class="skel-line" style="height:68px;width:120px;margin:0 auto 8px;border-radius:12px;"></div><div class="skel-line" style="height:10px;width:100px;margin:0 auto 28px;border-radius:99px;"></div><div class="skel-line" style="height:24px;width:80%;margin:0 auto 10px;border-radius:8px;"></div><div class="skel-line" style="height:18px;width:60%;margin:0 auto 24px;border-radius:8px;"></div><div class="skel-line" style="height:80px;border-radius:16px;width:100%;margin-bottom:14px;"></div><div class="skel-line" style="height:52px;border-radius:99px;width:60%;margin:0 auto;"></div></div>`;
+  if(type==='building')return`<div style="text-align:center;padding:20px 0"><div class="skel-line" style="height:82px;width:82px;border-radius:50%;margin:0 auto 28px;"></div><div class="skel-line" style="height:28px;width:55%;margin:0 auto 10px;border-radius:8px;"></div><div class="skel-line" style="height:16px;width:80%;margin:0 auto 8px;border-radius:6px;"></div><div class="skel-line" style="height:16px;width:65%;margin:0 auto 28px;border-radius:6px;"></div>${[1,2,3,4,5].map(()=>`<div class="skel-line" style="height:14px;width:280px;margin:0 auto 12px;border-radius:6px;"></div>`).join('')}</div>`;
+  if(type==='results')return`<div class="skel-line" style="height:30px;width:65%;margin-bottom:10px;border-radius:10px;"></div><div class="skel-line" style="height:20px;width:50%;margin-bottom:18px;border-radius:8px;"></div><div class="skel-line" style="height:110px;border-radius:20px;margin-bottom:16px;"></div><div class="skel-line" style="height:14px;width:95%;margin-bottom:8px;"></div><div class="skel-line" style="height:14px;width:80%;margin-bottom:18px;"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">${[1,2,3,4].map(()=>`<div class="skel-line" style="height:72px;border-radius:14px;margin:0;"></div>`).join('')}</div>`;
+  return`<div class="skel-line sk-tag"></div><div class="skel-line sk-h1"></div><div class="skel-line sk-h2"></div><div class="skel-line sk-sub1"></div><div class="skel-line sk-sub2"></div><div class="skel-line sk-opt"></div><div class="skel-line sk-opt2"></div><div class="skel-line sk-opt3"></div><div class="skel-line sk-opt4"></div>`;
+}
+
+/* ═══ RENDER WELCOME */
+function renderWelcome(){
+  return`<div class="card active" id="sc-welcome" style="max-width:596px;">
+    <div class="skel-overlay">${skelInner('welcome')}</div>
+    <div class="wlc-eyebrow">AI Communication Coaching Platform <span class="wlc-rule"></span></div>
+    <h1 class="wlc-title">Calculate Your<br><em>Communication<br>Debt</em></h1>
+    <p class="wlc-body">Every avoided conversation, every undersold negotiation, every relationship strained by silence — it all has a price. In 90 seconds, discover exactly what communication avoidance is costing you in dollars, relationships, and health.</p>
+    <div class="debt-meter-wrap">
+      <div class="debt-meter-label">↯ U.S. Professionals · Avg. Annual Communication Debt</div>
+      <div class="debt-meter-stat">
+        <div class="debt-meter-num">$34,600</div>
+        <div class="debt-meter-sub">per year · career impact alone</div>
+      </div>
+      <div class="debt-bar-track"><div class="debt-bar-fill"></div></div>
+      <div class="debt-meter-note">Source: McKinsey Global Institute, 2022 · Gallup Workforce Panel, 2023</div>
+    </div>
+    <div class="sp-row">
+      <div class="sp-faces">
+        <div class="sp-face f1">A</div><div class="sp-face f2">K</div>
+        <div class="sp-face f3">M</div><div class="sp-face f4">D</div>
+      </div>
+      <span class="sp-text"><strong>50,000+</strong> professionals have calculated their debt</span>
+    </div>
+    <button class="btn-start" onclick="nextScreen()">Calculate My Debt &nbsp; ${svgR()}</button>
+    <div class="trust-row">
+      <span class="trust-item"><span style="opacity:.7">${svgLock()}</span>&nbsp;Completely private</span>
+      <span class="trust-item"><span style="opacity:.7">${svgClock()}</span>&nbsp;90 seconds</span>
+      <span class="trust-item"><span style="opacity:.7">✦</span>&nbsp;No account required</span>
+    </div>
+    <p class="wlc-fine">Your answers are used solely to calculate your personalized debt figure. Never stored or shared.</p>
+  </div>`;
+}
+
+/* ═══ RENDER Q */
+function renderQ(s){
+  const noteHTML=s.note?`<div class="q-note">${svgLock()}&nbsp;${s.note}</div>`:'';
+  const opts=s.opts.map(o=>`<button class="opt" data-val="${o.val}" onclick="selectOpt(this,'${s.id}')"><span class="opt-glow"></span><span class="opt-accent"></span><span class="opt-lbl">${o.lbl}</span><span class="opt-radio">${svgCheck()}</span></button>`).join('');
+  return`<div class="card active" id="sc-${s.id}">
+    <div class="skel-overlay">${skelInner('q')}</div>
+    <div class="q-tag"><span class="q-dot"></span>${s.tag}</div>
+    <h2 class="q-text">${s.text}</h2>
+    <p class="q-sub">${s.sub}</p>
+    ${noteHTML}
+    <div class="opts">${opts}</div>
+    <div class="nav">
+      <button class="btn-back" onclick="prevScreen()">${svgL()}&nbsp; Back</button>
+      <button class="btn-next" id="btn-${s.id}" onclick="nextScreen()">Continue &nbsp;${svgR()}</button>
+    </div>
+  </div>`;
+}
+
+/* ═══ RENDER SLIDER */
+function renderSlider(s){
+  _CAPS[s.id]=s.captions;
+  return`<div class="card active" id="sc-${s.id}">
+    <div class="skel-overlay">${skelInner('slider')}</div>
+    <div class="q-tag"><span class="q-dot"></span>${s.tag}</div>
+    <h2 class="q-text">${s.text}</h2>
+    <p class="q-sub">${s.sub}</p>
+    <div class="sl-wrap">
+      <div class="sl-meta"><span>0 — None</span><span>12+</span></div>
+      <input type="range" id="sl-${s.id}" min="${s.min}" max="${s.max}" value="${s.defaultVal}" oninput="onSlider('${s.id}','${s.key}',this.value)">
+      <div class="sl-display">
+        <div class="sl-num" id="slv-${s.id}">${s.defaultVal}</div>
+        <div class="sl-caption" id="slc-${s.id}">${s.captions[s.defaultVal]}</div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-back" onclick="prevScreen()">${svgL()}&nbsp; Back</button>
+      <button class="btn-next on" id="btn-${s.id}" onclick="nextScreen()">Continue &nbsp;${svgR()}</button>
+    </div>
+  </div>`;
+}
+
+/* ═══ RENDER WORD */
+function renderWord(s){
+  return`<div class="card active" id="sc-${s.id}">
+    <div class="skel-overlay">${skelInner('word')}</div>
+    <div class="q-tag"><span class="q-dot"></span>${s.tag}</div>
+    <h2 class="q-text">${s.text}</h2>
+    <p class="q-sub">${s.sub}</p>
+    <input class="txt-in" id="ti-${s.id}" placeholder="${s.placeholder}" maxlength="28" oninput="onText('${s.id}','${s.key}',this.value)" onkeydown="if(event.key==='Enter'&&this.value.trim())nextScreen()">
+    <div class="nav">
+      <button class="btn-back" onclick="prevScreen()">${svgL()}&nbsp; Back</button>
+      <button class="btn-next" id="btn-${s.id}" onclick="nextScreen()">Calculate My Debt &nbsp; ✦</button>
+    </div>
+  </div>`;
+}
+
+/* ═══ RENDER INSIGHT */
+function getInsightBars(){
+  const data=[
+    {key:'salary',lbl:'Salary & compensation left on the table',pct:71},
+    {key:'conflict',lbl:'Unresolved conflict compounding over time',pct:64},
+    {key:'advocacy',lbl:'Career opportunities missed through silence',pct:58},
+    {key:'feedback',lbl:'Performance gaps that go uncorrected',pct:47},
+    {key:'limits',lbl:'Relationship erosion from unspoken resentment',pct:41},
+  ];
+  const ans=S.answers.q3||'';
+  return data.map(d=>({...d,hi:d.key===ans||ans==='all'}));
+}
+
+function renderInsight(){
+  const bars=getInsightBars();
+  const barsHTML=bars.map(b=>`<div class="bar-row${b.hi?' hi':''}"><div class="bar-row-lbl">${b.lbl}</div><div class="bar-track"><div class="bar-fill" data-pct="${b.pct}" style="width:0%"></div></div><span class="bar-pct">${b.pct}%</span></div>`).join('');
+  return`<div class="card-c active" id="sc-insight1">
+    <div class="ins-glass">
+      <div class="skel-overlay" style="border-radius:var(--cr);">${skelInner('insight')}</div>
+      <div class="ins-tag"><span class="q-dot"></span>Research · Harvard Business Review · 2023</div>
+      <h2 class="ins-title">Communication debt is not metaphor.<br>It is a measurable financial liability.</h2>
+      <p class="ins-body">HBR analysis of 12,400 professionals found that <strong>communication avoidance accounts for 68% of all avoidable career stagnation</strong> — and costs the median professional more than $22,000 per decade in direct compensation alone. The categories below show where debt accumulates fastest.</p>
+      <div class="chart-wrap">
+        <div class="chart-title">Where communication debt accumulates — % of professionals reporting significant impact</div>
+        <div class="chart-source">Harvard Business Review + Gallup Workforce Panel, n = 12,400 · 2023</div>
+        ${barsHTML}
+        <div class="chart-note">↑ Your primary debt category — the driver of your calculation.</div>
+      </div>
+      <button class="btn-cont" onclick="nextScreen()">Continue Calculating &nbsp;${svgR()}</button>
+    </div>
+  </div>`;
+}
+
+/* ═══ RENDER MOMENTUM */
+function renderMomentum(s){
+  const statsHTML=`<div class="stat-cards" style="margin-bottom:20px;">
+    <div class="stat-card"><div class="stat-num">68%</div><div class="stat-lbl">Of avoidable career stagnation caused by communication debt</div><div class="stat-src">HBR, 2023</div></div>
+    <div class="stat-card"><div class="stat-num">4.1×</div><div class="stat-lbl">More likely to be promoted: effective communicators vs. avoiders</div><div class="stat-src">Gallup, 2023</div></div>
+    <div class="stat-card"><div class="stat-num">90%</div><div class="stat-lbl">Of divorce outcomes predicted by communication patterns alone</div><div class="stat-src">Gottman Institute</div></div>
+  </div>`;
+  return`<div class="card-c active" id="sc-${s.id}">
+    <div class="mom-wrap">
+      <div class="skel-overlay" style="border-radius:var(--cr);">${skelInner('momentum')}</div>
+      <div class="mom-pct">${s.pct}%</div>
+      <div class="mom-pct-lbl">Calculation Complete</div>
+      <div class="mom-rule"></div>
+      <h2 class="mom-title">${s.title}</h2>
+      <p class="mom-body">${s.body}</p>
+      ${statsHTML}
+      <div class="recip-box">
+        <div class="recip-label">${s.recipLabel}</div>
+        <div class="recip-text">${s.recipText}</div>
+      </div>
+      <div class="loss-box">
+        <div class="loss-label">⚠ The compound effect</div>
+        <div class="loss-text">${s.lossText}</div>
+      </div>
+      <button class="btn-cont" onclick="nextScreen()">Complete My Calculation &nbsp;${svgR()}</button>
+    </div>
+  </div>`;
+}
+
+/* ═══ RENDER BUILDING */
+function renderBuilding(){
+  return`<div class="card-c active" id="sc-building">
+    <div class="bld-wrap">
+      <div class="skel-overlay" style="border-radius:var(--cr);">${skelInner('building')}</div>
+      <div class="bld-ring-outer"><div class="bld-ring"></div><div class="bld-ring-inner"></div></div>
+      <div class="bld-tag">Computing Your Communication Debt</div>
+      <h2 class="bld-title">Calculating your total…</h2>
+      <p class="bld-sub">Running your 12 data points through our communication debt model. This takes a moment to get right.</p>
+      <div class="bld-steps">
+        <div class="bld-step active" id="bs1"><span class="step-dot"></span>Analyzing income and negotiation gap</div>
+        <div class="bld-step" id="bs2"><span class="step-dot"></span>Calculating career opportunity cost</div>
+        <div class="bld-step" id="bs3"><span class="step-dot"></span>Modeling relationship debt</div>
+        <div class="bld-step" id="bs4"><span class="step-dot"></span>Estimating productivity and health drain</div>
+        <div class="bld-step" id="bs5"><span class="step-dot"></span>Compiling your total communication debt</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ═══ DEBT CALCULATION */
+function calculateDebt(){
+  const a=S.answers;
+  const incomeBase={under_50k:42000,'50_75k':62000,'75_100k':87000,'100_150k':125000,'150_plus':200000}[a.q1]||75000;
+  const hourlyRate=Math.round(incomeBase/2080);
+  const monthlyAvoided={'1_2':1.5,'3_5':4,'6_10':8,'11_plus':15}[a.q2]||4;
+  const durationMonths={weeks:2,few_months:5,about_a_year:12,multiple_years:36}[a.q4]||12;
+  const negotiationRatio={always:0.22,often:0.14,sometimes:0.08,rarely:0.03}[a.q5]||0.12;
+  const careerSeverity={missed_promo:1.45,lost_deal:1.35,ideas_ignored:1.2,leadership_gap:1.28,none_yet:1.0}[a.q6]||1.2;
+  const voiceMultiplier={rarely:1.3,sometimes:1.15,often:1.0,consistently:0.85}[a.q9]||1.1;
+  const raisesNotAsked=parseInt(a.raises_missed)||3;
+
+  const raiseGap=Math.round(incomeBase*negotiationRatio*(durationMonths/12));
+  const opportunityCost=Math.round(monthlyAvoided*280*durationMonths*careerSeverity*voiceMultiplier);
+  const lifetimeRaiseImpact=Math.round(raisesNotAsked*incomeBase*0.085);
+  const careerDebt=raiseGap+opportunityCost+Math.round(lifetimeRaiseImpact*0.3);
+
+  const relDamage={none:0,one_two:2,three_five:4,more_than_five:7}[a.q7]||2;
+  const relationshipDebt=Math.round(relDamage*2600+(relDamage>0?monthlyAvoided*180:0));
+
+  const healthMultiplier={no_impact:0.05,mild:0.12,moderate:0.22,significant:0.36}[a.q8]||0.18;
+  const productivityHoursLost=Math.round(durationMonths*4*40*healthMultiplier);
+  const healthDebt=Math.round(productivityHoursLost*hourlyRate);
+
+  const totalDebt=careerDebt+relationshipDebt+healthDebt;
+  const monthlyAccumulation=Math.round(totalDebt/Math.max(durationMonths,2));
+  const annualAccumulation=Math.round(monthlyAccumulation*12);
+  const relAtRisk=Math.max(relDamage+1,2);
+  const northStar=a.north_star?(a.north_star.charAt(0).toUpperCase()+a.north_star.slice(1)):'Free';
+  const convosAvoided=Math.round(monthlyAvoided*durationMonths);
+  const debtLevel=totalDebt>60000?'Critical':totalDebt>30000?'Significant':totalDebt>12000?'Moderate':'Early Stage';
+
+  const careerPct=Math.round((careerDebt/totalDebt)*100);
+  const relPct=Math.round((relationshipDebt/totalDebt)*100);
+  const healthPct=100-careerPct-relPct;
+
+  return{totalDebt,careerDebt,relationshipDebt,healthDebt,monthlyAccumulation,annualAccumulation,
+    relAtRisk,productivityHoursLost,raisesNotAsked,lifetimeRaiseImpact,convosAvoided,
+    debtLevel,northStar,careerPct,relPct,healthPct,incomeBase,durationMonths};
+}
+
+/* ═══ RENDER RESULTS */
+function renderResults(){
+  const d=calculateDebt();
+  return`<div class="card-c active" id="sc-results">
+    <div style="width:100%;max-width:608px;margin:0 auto;">
+      <div class="res-glass">
+        <div class="skel-overlay" style="border-radius:var(--cr);">${skelInner('results')}</div>
+        <div class="res-eyebrow"><span class="q-dot"></span>Your Communication Debt Report</div>
+        <h2 class="res-title">Your total communication debt is</h2>
+
+        <div class="debt-ticker-wrap">
+          <div class="debt-ticker-label">↯ Total Estimated Communication Debt</div>
+          <div class="debt-ticker-amount" id="debtTicker">$0</div>
+          <div class="debt-ticker-sub">Across career, relationship, and health dimensions · ${d.durationMonths} month accumulation period</div>
+          <div class="debt-ticker-monthly">
+            <div class="dtm-icon"></div>
+            <div class="dtm-text">Accumulating at <strong>${fmtMoney(d.monthlyAccumulation)}/month</strong> right now</div>
+          </div>
+        </div>
+
+        <div class="debt-breakdown">
+          <div class="db-title">Debt Breakdown by Category</div>
+          <div class="db-row">
+            <div class="db-label">Career & Compensation</div>
+            <div class="db-track"><div class="db-fill career" data-pct="${d.careerPct}" style="width:0%"></div></div>
+            <div class="db-amount">${fmtMoney(d.careerDebt)}</div>
+          </div>
+          <div class="db-row">
+            <div class="db-label">Relationship Capital</div>
+            <div class="db-track"><div class="db-fill relationship" data-pct="${d.relPct}" style="width:0%"></div></div>
+            <div class="db-amount">${fmtMoney(d.relationshipDebt)}</div>
+          </div>
+          <div class="db-row">
+            <div class="db-label">Health & Productivity</div>
+            <div class="db-track"><div class="db-fill health" data-pct="${d.healthPct}" style="width:0%"></div></div>
+            <div class="db-amount">${fmtMoney(d.healthDebt)}</div>
+          </div>
+        </div>
+
+        <div class="res-keys">
+          <div class="rkey"><div class="rkey-label">Monthly Accumulation</div><div class="rkey-val amber">${fmtMoney(d.monthlyAccumulation)}/mo</div></div>
+          <div class="rkey"><div class="rkey-label">Conversations Avoided</div><div class="rkey-val red">${d.convosAvoided} total</div></div>
+          <div class="rkey"><div class="rkey-label">Relationships at Risk</div><div class="rkey-val red">${d.relAtRisk} identified</div></div>
+          <div class="rkey"><div class="rkey-label">Productivity Hours Lost</div><div class="rkey-val amber">${d.productivityHoursLost} hrs</div></div>
+        </div>
+
+        <div class="insight-callout">
+          <div class="ic-label">✦ Your Debt-Free Identity</div>
+          <div class="ic-text">You said the word that describes life without communication debt: <strong>"${d.northStar}."</strong> That word is now the north star of your coaching plan. Conversly's AI coaches you toward that identity — one conversation at a time, starting today.</div>
+        </div>
+      </div>
+
+      <div class="pricing-section">
+        <div class="pricing-eyebrow"><span class="q-dot"></span>Start Paying It Down</div>
+        <div class="pricing-title">Your Debt Repayment Plan</div>
+        <div class="pricing-sub">Users who begin daily practice within 10 minutes of seeing their debt figure are 5× more likely to build a lasting habit. Both plans include your personalized communication debt curriculum.</div>
+        <div class="plans-grid">
+          <div class="plan-card" onclick="openPlanModal('Starter','$12.99')">
+            <div class="plan-name">Starter</div>
+            <div class="plan-tagline">Build the habit. Start reducing.</div>
+            <div class="plan-price"><span class="price-amount">$12.99</span><span class="price-period"> / month</span></div>
+            <ul class="plan-features">
+              <li>15 min/day AI voice practice — negotiation, conflict, advocacy</li>
+              <li>Core Roleplay AI for your highest-debt scenarios first</li>
+              <li>Post-session feedback on clarity, assertiveness, and impact</li>
+              <li>Daily goals and streak system to build the habit</li>
+              <li>Basic Communication Debt tracker</li>
+            </ul>
+            <button class="plan-btn starter-btn">Start Reducing →</button>
+          </div>
+          <div class="plan-card pro-plan" onclick="openPlanModal('Pro','$17.99')">
+            <div class="plan-badge">✦ &nbsp;Fastest Debt Reduction</div>
+            <div class="plan-name">Pro</div>
+            <div class="plan-tagline">Clear your debt. Fully.</div>
+            <div class="plan-price"><span class="price-amount">$17.99</span><span class="price-period"> / month</span></div>
+            <ul class="plan-features">
+              <li>Everything in Starter</li>
+              <li>30 min/day AI voice — 2× the practice, 2× the results</li>
+              <li>All scenarios including salary negotiation, conflict repair, and leadership</li>
+              <li>Live adaptive coaching that corrects patterns mid-conversation</li>
+              <li>Full Communication Debt dashboard — watch your debt decrease in real time</li>
+              <li>Deep analytics: assertiveness, EQ, clarity, persuasion, and beyond</li>
+              <li>All 10 premium coaching avatars + multilingual practice</li>
+            </ul>
+            <button class="plan-btn pro-btn">Clear My Debt →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dl-panel">
+        <div class="dl-top">
+          <div class="dl-text">
+            <h3>Your debt is real. So is the solution.</h3>
+            <p>At ${fmtMoney(d.monthlyAccumulation)}/month, every week you wait costs you more. Your personalized debt reduction plan is already waiting inside the app.</p>
+          </div>
+          <div class="dl-urgency"><div class="dl-urgency-lbl">Monthly Cost of Waiting</div><div class="dl-urgency-val">${fmtMoney(d.monthlyAccumulation)}</div></div>
+        </div>
+        <div class="store-row">
+          <a class="store-btn apple-btn" href="https://apps.apple.com/app/conversly-communication-gym/id6753739129" target="_blank" rel="noopener">
+            <div class="s-icon"><svg width="26" height="32" viewBox="0 0 26 32" fill="none"><path d="M21.7 17.3c-.034-3.84 3.145-5.697 3.291-5.786-1.796-2.622-4.586-2.983-5.574-3.022-2.358-.24-4.61 1.393-5.808 1.393-1.198 0-3.034-1.361-4.994-1.323-2.562.04-4.935 1.497-6.249 3.775-2.661 4.609-.689 11.43 1.915 15.176 1.265 1.83 2.765 3.886 4.741 3.814 1.909-.077 2.629-1.226 4.941-1.226 2.311 0 2.96 1.226 4.98 1.188 2.056-.039 3.354-1.868 4.597-3.704 1.457-2.118 2.057-4.171 2.088-4.278-.044-.02-4-1.537-4.034-6.007zM17.925 5.405c1.047-1.283 1.758-3.055 1.566-4.825-1.514.062-3.347 1.012-4.43 2.29-.972 1.124-1.824 2.927-1.595 4.659 1.69.132 3.41-.86 4.459-2.124z" fill="white"/></svg></div>
+            <div><div class="s-sub">Download on the</div><div class="s-name">App Store</div></div>
+          </a>
+          <a class="store-btn play-btn" href="https://play.google.com/store/apps/details?id=com.conversly.app" target="_blank" rel="noopener">
+            <div class="s-icon"><svg width="26" height="29" viewBox="0 0 26 29" fill="none"><path d="M.5.72C.18 1.06 0 1.59 0 2.28v24.44c0 .69.18 1.22.5 1.56l.08.08L14.06 14.5v-.35L.58.64.5.72z" fill="url(#gp1r)"/><path d="M18.67 19.18l-4.61-4.68v-.35l4.61-4.68.1.06 5.46 3.11c1.56.89 1.56 2.34 0 3.23l-5.46 3.11-.1.06z" fill="url(#gp2r)"/><path d="M18.77 19.12L14.06 14.5.5 28.28c.51.55 1.36.62 2.33.07l15.94-9.23z" fill="url(#gp3r)"/><path d="M18.77 9.88L2.83.65C1.86.1 1.01.17.5.72L14.06 14.5l4.71-4.62z" fill="url(#gp4r)"/><defs><linearGradient id="gp1r" x1="12.85" y1="1.75" x2="-6.1" y2="14.42" gradientUnits="userSpaceOnUse"><stop stop-color="#00A0FF"/><stop offset="1" stop-color="#00E3FF"/></linearGradient><linearGradient id="gp2r" x1="25.08" y1="14.17" x2="-.51" y2="14.17" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE000"/><stop offset="1" stop-color="#FF9C00"/></linearGradient><linearGradient id="gp3r" x1="16.24" y1="16.68" x2="-8.03" y2="45.75" gradientUnits="userSpaceOnUse"><stop stop-color="#FF3A44"/><stop offset="1" stop-color="#C31162"/></linearGradient><linearGradient id="gp4r" x1="-2.54" y1="-10.6" x2="8.48" y2="5.54" gradientUnits="userSpaceOnUse"><stop stop-color="#32A071"/><stop offset="1" stop-color="#00F076"/></linearGradient></defs></svg></div>
+            <div><div class="s-sub">Get it on</div><div class="s-name">Google Play</div></div>
+          </a>
+        </div>
+        <p class="dl-fine">Free to start · No credit card · Your debt profile syncs on first launch</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ═══ DISPATCH */
+function renderScreen(s){
+  switch(s.type){
+    case 'welcome':return renderWelcome();
+    case 'q':return renderQ(s);
+    case 'slider':return renderSlider(s);
+    case 'word':return renderWord(s);
+    case 'insight':return renderInsight();
+    case 'momentum':return renderMomentum(s);
+    case 'building':return renderBuilding();
+    case 'results':return renderResults();
+  }
+}
+
+/* ═══ MOUNT */
+function mount(idx,dir){
+  const el=document.getElementById('screens');
+  const spacer=document.getElementById('screensSpacer');
+  const s=SCREENS[idx];
+  const tmp=document.createElement('div');
+  tmp.innerHTML=renderScreen(s);
+  const newEl=tmp.firstElementChild;
+  const isCenter=newEl.classList.contains('card-c');
+  if(isCenter){newEl.classList.remove('active');newEl.classList.add('gone');}
+  else{newEl.classList.remove('active');newEl.classList.add(dir==='fwd'?'in-r':'in-l');}
+  el.insertBefore(newEl,spacer);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    newEl.classList.remove('in-r','in-l','gone');
+    newEl.classList.add('active');
+    postMount(s);
+    updateSpacerHeight();
+  }));
+  el.querySelectorAll(':scope > *').forEach(child=>{
+    if(child===newEl||child===spacer)return;
+    child.classList.remove('active');
+    if(child.classList.contains('card-c')){child.classList.add('gone');}
+    else{child.classList.add(dir==='fwd'?'out-l':'out-r');}
+    setTimeout(()=>child.remove(),480);
+  });
+  updateHUD(idx);
+  restore(s);
+}
+
+function updateSpacerHeight(){
+  const spacer=document.getElementById('screensSpacer');
+  const screens=document.getElementById('screens');
+  const active=screens.querySelector('.card.active, .card-c.active');
+  if(active&&spacer)spacer.style.height=active.offsetHeight+'px';
+  requestAnimationFrame(()=>{const a2=screens.querySelector('.card.active, .card-c.active');if(a2&&spacer)spacer.style.height=a2.offsetHeight+'px';});
+}
+
+function updateHUD(idx){
+  const p=pct(idx);
+  document.getElementById('progFill').style.width=p+'%';
+  document.getElementById('qCounter').textContent=qLabel(idx);
+  document.querySelectorAll('.prog-ms').forEach(el=>{el.classList.toggle('passed',p>=parseInt(el.dataset.at));});
+}
+
+function restore(s){
+  if(s.type==='q'&&S.answers[s.id]){
+    const o=document.querySelector(`[data-val="${S.answers[s.id]}"]`);
+    if(o){o.classList.add('sel');document.getElementById('btn-'+s.id)?.classList.add('on');}
+  }
+  if(s.type==='word'&&S.answers[s.key]){
+    const t=document.getElementById('ti-'+s.id);
+    if(t){t.value=S.answers[s.key];document.getElementById('btn-'+s.id)?.classList.add('on');}
+  }
+  if(s.type==='slider'){const inp=document.getElementById('sl-'+s.id);if(inp)syncSliderBg(inp);}
+}
+
+function postMount(s){
+  if(s.type==='insight'){setTimeout(()=>{document.querySelectorAll('.bar-fill').forEach(b=>{b.style.width=b.dataset.pct+'%';});},200);}
+  if(s.type==='building')animateBuild();
+  if(s.type==='results'){setTimeout(animateResults,300);spawnConfetti();}
+  if(s.type==='slider'){const inp=document.getElementById('sl-'+s.id);if(inp)syncSliderBg(inp);}
+}
+
+/* ═══ INTERACTIONS */
+function selectOpt(btn,sid){
+  btn.closest('.opts').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  btn.classList.add('sel');
+  S.answers[sid]=btn.dataset.val;
+  document.getElementById('btn-'+sid)?.classList.add('on');
+  setTimeout(()=>{if(document.getElementById('btn-'+sid)?.classList.contains('on'))nextScreen();},360);
+}
+function onSlider(sid,key,val){
+  S.answers[key]=val;
+  const caps=_CAPS[sid]||{};
+  document.getElementById('slv-'+sid).textContent=val;
+  document.getElementById('slc-'+sid).textContent=caps[val]||caps[parseInt(val)]||'';
+  const inp=document.getElementById('sl-'+sid);
+  if(inp)syncSliderBg(inp);
+}
+function syncSliderBg(inp){
+  const p=(inp.value-inp.min)/(inp.max-inp.min)*100;
+  inp.style.background=`linear-gradient(90deg,#E8903A 0%,#F5C842 ${p}%,rgba(255,255,255,0.06) ${p}%)`;
+}
+function onText(sid,key,val){
+  S.answers[key]=val.trim();
+  const btn=document.getElementById('btn-'+sid);
+  if(btn)btn.classList.toggle('on',val.trim().length>0);
+}
+function nextScreen(){if(S.screen<SCREENS.length-1){S.screen++;mount(S.screen,'fwd');}}
+function prevScreen(){if(S.screen>0){S.screen--;mount(S.screen,'bwd');}}
+
+/* ═══ MODAL */
+function openPlanModal(planName,price){
+  document.getElementById('modalPlanName').textContent=planName;
+  document.getElementById('modalPlanPrice').textContent=price+' / month';
+  document.getElementById('modalIcon').textContent=planName==='Pro'?'🚀':'⚡';
+  document.getElementById('planModal').classList.add('active');
+}
+function closePlanModal(e){if(!e||e.target===document.getElementById('planModal')){document.getElementById('planModal').classList.remove('active');}}
+
+/* ═══ BUILD ANIM */
+function animateBuild(){
+  const ids=['bs1','bs2','bs3','bs4','bs5'];
+  let i=0;
+  const tick=()=>{
+    if(i>0){const p=document.getElementById(ids[i-1]);if(p){p.classList.remove('active');p.classList.add('done');}}
+    if(i<ids.length){const c=document.getElementById(ids[i]);if(c)c.classList.add('active');i++;setTimeout(tick,760);}
+    else{setTimeout(()=>nextScreen(),420);}
+  };
+  setTimeout(tick,560);
+}
+
+/* ═══ RESULTS ANIMATION — count-up ticker */
+function countUp(target,duration,prefix){
+  const el=document.getElementById('debtTicker');
+  if(!el)return;
+  const start=0,startTime=performance.now();
+  function step(now){
+    const elapsed=now-startTime;
+    const progress=Math.min(elapsed/duration,1);
+    const eased=1-Math.pow(1-progress,3);
+    const current=Math.round(start+(target-start)*eased);
+    el.textContent=prefix+'$'+current.toLocaleString();
+    if(progress<1)requestAnimationFrame(step);
+    else el.textContent=prefix+'$'+target.toLocaleString();
+  }
+  requestAnimationFrame(step);
+}
+
+function animateResults(){
+  const d=calculateDebt();
+  countUp(d.totalDebt,2200,'');
+  setTimeout(()=>{
+    document.querySelectorAll('.db-fill').forEach(b=>{b.style.width=b.dataset.pct+'%';});
+  },400);
+}
+
+/* ═══ CONFETTI */
+function spawnConfetti(){
+  const field=document.getElementById('confetti');
+  const colors=['#F5C842','#E8903A','#CC5C2A','rgba(245,200,66,0.7)','rgba(255,255,255,0.5)','#38C9A7'];
+  for(let i=0;i<55;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='cp';
+      const size=4+Math.random()*7;
+      el.style.cssText=`left:${Math.random()*100}%;top:-10px;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2.4+Math.random()*2.2}s;animation-delay:${Math.random()*0.7}s;border-radius:${Math.random()>.5?'50%':'3px'};`;
+      field.appendChild(el);
+      setTimeout(()=>el.remove(),6000);
+    },i*45);
+  }
+}
+
+window.addEventListener('resize',updateSpacerHeight);
+mount(0,'fwd');
+</script>
+</body>
+</html>
